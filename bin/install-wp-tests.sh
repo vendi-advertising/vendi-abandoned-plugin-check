@@ -13,6 +13,7 @@ WP_VERSION=${5-latest}
 SKIP_DB_CREATE=${6-false}
 
 WP_TESTS_DIR=${WP_TESTS_DIR-/tmp/wordpress-tests-lib}
+WP_TESTS_DIR_EXTRA=$WP_TESTS_DIR/data/themedir1
 WP_CORE_DIR=${WP_CORE_DIR-/tmp/wordpress/}
 
 download() {
@@ -80,6 +81,10 @@ install_test_suite() {
 		# set up testing suite
 		mkdir -p $WP_TESTS_DIR
 		svn co --quiet https://develop.svn.wordpress.org/${WP_TESTS_TAG}/tests/phpunit/includes/ $WP_TESTS_DIR/includes
+	fi
+
+	if [ ! -d $WP_TESTS_DIR_EXTRA ]; then
+		mkdir -p $WP_TESTS_DIR_EXTRA
 	fi
 
 	if [ ! -f wp-tests-config.php ]; then
