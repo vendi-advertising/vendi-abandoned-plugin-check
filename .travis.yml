@@ -28,10 +28,9 @@ before_install:
   - composer validate
 
 before_script:
-  - |
-    composer update
-    composer install --dev
-    bash bin/install-wp-tests.sh wordpress_test travis '' localhost $WP_VERSION
+  - composer update
+  - composer install --dev
+  - bash bin/install-wp-tests.sh wordpress_test travis '' localhost $WP_VERSION
 
 script:
   - cd $TRAVIS_BUILD_DIR
