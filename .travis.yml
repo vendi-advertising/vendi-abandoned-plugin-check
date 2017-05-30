@@ -25,10 +25,10 @@ before_install:
   - source .travis/xdebug.sh
   - xdebug-disable
   - composer self-update
+  - composer update
   - composer validate
 
 before_script:
-  - composer update
   - composer install --dev
   - bash bin/install-wp-tests.sh wordpress_test travis '' localhost $WP_VERSION
 
