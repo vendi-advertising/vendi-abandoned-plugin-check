@@ -1,0 +1,31 @@
+<phpunit
+	bootstrap="tests/bootstrap.php"
+	backupGlobals="false"
+	colors="true"
+	convertErrorsToExceptions="true"
+	convertNoticesToExceptions="true"
+	convertWarningsToExceptions="true"
+	>
+	<testsuites>
+		<testsuite>
+			<directory prefix="test-" suffix=".php">./tests/</directory>
+		</testsuite>
+	</testsuites>
+
+    <logging>
+        <log type="coverage-html" target="tests/logs/coverage" charset="UTF-8" />
+    </logging>
+
+    <filter>
+
+        <whitelist>
+            <directory suffix=".php">./lib/</directory>
+        </whitelist>
+
+        <blacklist>
+          <directory suffix=".php">./tests/</directory>
+        </blacklist>
+    </filter>
+
+
+</phpunit>

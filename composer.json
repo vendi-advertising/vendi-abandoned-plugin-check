@@ -1,0 +1,21 @@
+{
+    "name": "vendi-advertising/vendi-abandoned-plugin-check",
+    "type": "library",
+    "description": "Vendi Abandoned Plugin Check",
+    "homepage": "https://github.com/vendi-advertising/vendi-abandoned-plugin-check",
+    "license": "GPLv2 or later",
+    "authors": [
+        {
+            "name": "Chris Haas",
+            "email": "chris@vendiadvertising.com",
+            "homepage": "https://www.vendiadvertising.com/",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=5.2"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "*"
+    }
+}
