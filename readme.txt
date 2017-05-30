@@ -6,6 +6,7 @@ Tested up to: 4.5
 Stable tag: 3.3.0
 License: GPLv2 or later
 
+
 Helps find abandoned plugins by showing how many days since their last SVN update.
 
 == Description ==
