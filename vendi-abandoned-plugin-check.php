@@ -2,7 +2,7 @@
 /*
 Plugin Name: Vendi Abandoned Plugin Check
 Description: Provides information about abandoned plugins
-Version: 3.3.0
+Version: 3.3.1
 License: GPLv2
 Author: Vendi Advertising (Chris Haas)
 */

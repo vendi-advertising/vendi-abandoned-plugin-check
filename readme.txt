@@ -2,10 +2,9 @@
 Contributors: chrisvendiadvertisingcom
 Tags: admin, abandoned, plugin
 Requires at least: 3.4.0
-Tested up to: 4.5
-Stable tag: 3.3.0
+Tested up to: 4.8
+Stable tag: 3.3.1
 License: GPLv2 or later
-
 
 Helps find abandoned plugins by showing how many days since their last SVN update.
 
