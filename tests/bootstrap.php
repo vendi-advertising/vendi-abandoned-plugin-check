@@ -15,3 +15,5 @@ require_once $_tests_dir . '/includes/functions.php';
 
 // Start up the WP testing environment.
 require $_tests_dir . '/includes/bootstrap.php';
+
+require_once dirname( dirname( __FILE__ ) ) .  '/vendi-abandoned-plugin-check.php';
