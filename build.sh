@@ -1,9 +1,4 @@
-php -r "require_once 'vendor/autoload.php'; $txt = file_get_contents('readme.txt'); $md = \WPReadme2Markdown\Converter::convert($txt); file_put_contents('README.md', $md);"
-
-
-./vendor/bin/wp2md convert < readme.txt > README.md
-
-php ~/wordpress-dev-tools/tools/i18n/makepot.php wp-plugin . languages/vendi-abandoned-plugin-check.pot
+php -r "require_once 'vendor/autoload.php'; \$txt = file_get_contents('readme.txt'); \$md = \WPReadme2Markdown\Converter::convert(\$txt); file_put_contents('README.md', \$md);"
 
 #cd ../
 #rm -f vendi-cache.zip
