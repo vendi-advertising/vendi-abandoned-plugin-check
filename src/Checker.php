@@ -235,34 +235,8 @@ class Checker
                 $text = sprintf( '<strong id="%1$s" style="color: #f00; display: block; background-color: #fff; padding: 3px; border: 1px solid #f00; text-align: left;">This plugin has not been updated by the author in %2$d days!</strong>', $id, $diff_in_days );
 
                 //Also output some JS that hopefully can find the parent "card" and style that as well
-                $js = <<<EOT
-<script>
-    //Grab our random unique ID
-    var n = document.getElementById('{$id}');
+                $js = utils::get_js_for_install_card_by_id($id);
 
-    //Make sure we have something and loop through each parent
-    while( n && n.parentNode )
-    {
-        //If the parent has the class or tag that we're looking for
-        if(
-            ( n.parentNode.className && n.parentNode.className.indexOf( 'plugin-card' ) >= 0 )  //WP 4.0 and greater
-            ||
-            ( n.parentNode.nodeName && n.parentNode.nodeName.toUpperCase() === 'TR' )           //WP 3.9 and less
-          )
-        {
-            //Make it stand out
-            n.parentNode.style.backgroundColor = '#f99';
-            n.parentNode.style.borderColor = '#f00';
-
-            //We found it, done.
-            break;
-        }
-
-        //We didn't find anything, walk up one more parent
-        n = n.parentNode;
-    }
-</script>
-EOT;
                 //Combine the text and JS
                 $action_links[] = $text . $js;
             }
