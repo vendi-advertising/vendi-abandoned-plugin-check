@@ -2,8 +2,8 @@
 Contributors: chrisvendiadvertisingcom
 Tags: admin, abandoned, plugin
 Requires at least: 3.4.0
-Tested up to: 4.8
-Stable tag: 3.3.1
+Tested up to: 5.1
+Stable tag: 3.3.2
 License: GPLv2 or later
 
 Helps find abandoned plugins by showing how many days since their last SVN update.
@@ -55,6 +55,9 @@ will not work.
 2. Example showing old plugins when searching.
 
 == Changelog ==
+
+= 3.3.2 =
+* WP 5.1 tested
 
 = 3.3.0 =
 * Changed API check to use SVN slug instead of Plugin slug. Thanks Scott Neader and Bob Lindner!
