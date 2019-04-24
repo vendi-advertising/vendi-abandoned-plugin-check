@@ -1,13 +1,8 @@
 <?php
-/*
-Plugin Name: Vendi Abandoned Plugin Check
-Description: Provides information about abandoned plugins
-Version: 3.3.1
-License: GPLv2
-Author: Vendi Advertising (Chris Haas)
-*/
 
-class Vendi_Plugin_Health_Check
+namespace Vendi\Plugin;
+
+class HealthCheck
 {
     const LOG_LEVEL_NONE          = 0;
     const LOG_LEVEL_ERROR         = 1;
@@ -178,7 +173,7 @@ class Vendi_Plugin_Health_Check
                 $args->fields = array();
             }
 
-            //Merge any existing fields with our newly 
+            //Merge any existing fields with our newly
             $args->fields = array_merge( $args->fields, array( 'last_updated' => true ) );
         }
 
@@ -420,7 +415,7 @@ EOT;
 
             //I was having trouble with the JSON call when using the plugin along with file name so
             //I'm just using the object call
-            
+
             //Deserialize the response
             $obj = unserialize( $body );
 
@@ -497,7 +492,7 @@ EOT;
 
     /**
      * Makes an attempt to get valid information on a specific plugin
-     * 
+     *
      * @param  string  $plugin      The plugin folder to lookup information.
      * @return boolean|string       If successful, returns the response string, otherwise false.
      */
@@ -512,7 +507,7 @@ EOT;
         }
 
         //Some of this code is lifted from class-wp-upgrader
-        
+
         //Get the WordPress current version to be polite in the API call
         include( ABSPATH . WPINC . '/version.php' );
 
@@ -620,7 +615,7 @@ EOT;
     }
 
     private function write_to_log( $status, $message )
-    {            
+    {
         if( ! $this->init_logger() )
         {
             return;
@@ -695,31 +690,27 @@ EOT;
          * see http://bugs.php.net/bug.php?id=30931
          */
 
-        if ( $path[strlen( $path ) - 1] == '/' ) // recursively return a temporary file path
-                return win_is_writable( $path . uniqid( mt_rand() ) . '.tmp');
-        else if ( is_dir( $path ) )
-                return win_is_writable( $path . '/' . uniqid( mt_rand() ) . '.tmp' );
+         // recursively return a temporary file path
+        if ( $path[strlen( $path ) - 1] == '/' ){
+            return $this->win_is_writable( $path . uniqid( mt_rand() ) . '.tmp');
+        }
+
+        if ( is_dir( $path ) ){
+            return $this->win_is_writable( $path . '/' . uniqid( mt_rand() ) . '.tmp' );
+        }
+
         // check tmp file for read/write capabilities
         $should_delete_tmp_file = !file_exists( $path );
         $f = @fopen( $path, 'a' );
-        if ( $f === false )
-                return false;
+        if ( $f === false ){
+            return false;
+        }
+
         fclose( $f );
-        if ( $should_delete_tmp_file )
-                unlink( $path );
+        if ( $should_delete_tmp_file ){
+            unlink( $path );
+        }
+
         return true;
-    }   
+    }
 }
-
-if( ! defined( 'VENDI_APC_LOG_LEVEL' ) )
-{
-    define( 'VENDI_APC_LOG_LEVEL', Vendi_Plugin_Health_Check::LOG_LEVEL_NONE );
-}
-
-if( ! defined( 'VENDI_APC_LOG_PATH' ) )
-{
-    define( 'VENDI_APC_LOG_PATH', dirname( __FILE__ ) . '/__debug/' );
-}
-
-//Init the above
-new Vendi_Plugin_Health_Check();
