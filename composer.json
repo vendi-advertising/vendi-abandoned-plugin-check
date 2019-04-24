@@ -13,7 +13,10 @@
         }
     ],
     "require": {
-        "php": ">=5.2"
+        "php": ">=5.2",
+        "psr/log": "^1.1",
+        "webmozart/path-util": "^2.3",
+        "symfony/polyfill-php71": "^1.11"
     },
     "require-dev": {
         "phpunit/phpunit": "*",

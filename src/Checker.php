@@ -1,8 +1,11 @@
 <?php
 
-namespace Vendi\Plugin;
+namespace Vendi\Plugin\HealthCheck;
 
-class HealthCheck
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
+
+class Checker
 {
     const LOG_LEVEL_NONE          = 0;
     const LOG_LEVEL_ERROR         = 1;
@@ -39,9 +42,29 @@ class HealthCheck
     //On plugin releases, when this is incremented our transients and options will be reset
     private $current_db_version = 1;
 
-    private $log_file = null;
+    private $logger;
 
-    public function __construct()
+    public function __construct(LoggerInterface $logger)
+    {
+        $this->logger = $logger;
+    }
+
+    public function get_logger() : LoggerInterface
+    {
+        return $this->logger;
+    }
+
+    public static function create_with_null_logger()
+    {
+        return new self(new NullLogger());
+    }
+
+    public static function create_with_default_file_logger()
+    {
+        return new self(Logger::create_with_plugin_relative_file_path('__debug/apc-debug.log'));
+    }
+
+    public function register_all_hooks()
     {
         register_activation_hook( __FILE__, array( $this, 'activation' ) );
 
@@ -76,26 +99,21 @@ class HealthCheck
         $installed_version = get_option( $this->option_name_version );
 
         //Make sure we have something and that it is digits only
-        if( false === $installed_version || false === ctype_digit( $installed_version ) )
-        {
+        if( false === $installed_version || false === ctype_digit( $installed_version ) ) {
             //We don't know what version is installed
             $installed_version = 0;
-        }
-        else
-        {
+        } else {
             //Cast in to
             $installed_version = (int)$installed_version;
         }
 
         //Version compare
-        if( $installed_version < $this->current_db_version )
-        {
+        if( $installed_version < $this->current_db_version ) {
 
-            $this->log_i( 'Older version of plugin found' );
+            $this->get_logger()->info( 'Older version of plugin found' );
 
             //Special case each version
-            switch( $installed_version )
-            {
+            switch( $installed_version ) {
 
                 //First edition to introduce versions
                 case 0:
@@ -112,7 +130,7 @@ class HealthCheck
 
     private function db_upgrade_0_to_2()
     {
-        $this->log_i( 'Upgrading plugin from version 0 to version 2' );
+        $this->get_logger()->info( 'Upgrading plugin from version 0 to version 2' );
 
         //Fully deactivate the plugin
         $this->cleanup_deactivation();
@@ -123,7 +141,7 @@ class HealthCheck
 
     private function cleanup_basic()
     {
-        $this->log_i( 'Clearing basic schedules and transients' );
+        $this->get_logger()->info( 'Clearing basic schedules and transients' );
 
         //Legacy
         wp_clear_scheduled_hook( 'vendi_plugin_health_check' );
@@ -140,7 +158,7 @@ class HealthCheck
     {
         $this->cleanup_basic();
 
-        $this->log_i( 'Clearing advanced schedules and transients' );
+        $this->get_logger()->info( 'Clearing advanced schedules and transients' );
 
         wp_clear_scheduled_hook( 'vendi_plugin_health_watcher' );
         wp_clear_scheduled_hook( $this->cron_name_watcher );
@@ -158,18 +176,15 @@ class HealthCheck
     public function modify_plugin_api_search_query( $args, $action )
     {
         //We only want to filter the search API for now
-        if( isset( $action ) && 'query_plugins' === $action )
-        {
+        if( isset( $action ) && 'query_plugins' === $action ) {
 
             //Just in case we aren't given an object, create one
-            if( ! is_object( $args ) )
-            {
+            if( ! is_object( $args ) ) {
                 $args = new \stdClass();
             }
 
             //If we don't have a fields property in the search arguments add it
-            if( ! property_exists( $args, 'fields' ) )
-            {
+            if( ! property_exists( $args, 'fields' ) ) {
                 $args->fields = array();
             }
 
@@ -189,8 +204,7 @@ class HealthCheck
     {
         $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
         $randomString = '';
-        for ( $i = 0; $i < $length; $i++ )
-        {
+        for ( $i = 0; $i < $length; $i++ ) {
             $randomString .= $characters[ rand( 0, strlen( $characters ) - 1 ) ];
         }
         return $randomString;
@@ -199,8 +213,7 @@ class HealthCheck
     public function highlight_old_plugins_on_install( $action_links, $plugin )
     {
         // print_r( $plugin );
-        if( is_array( $plugin ) && array_key_exists( 'last_updated', $plugin ) )
-        {
+        if( is_array( $plugin ) && array_key_exists( 'last_updated', $plugin ) ) {
             //Get now
             $now = new \DateTime();
 
@@ -214,8 +227,7 @@ class HealthCheck
             $tolerance_in_days = apply_filters( 'vendi_plugin_health_check_tolerance_in_days', 365 );
 
             //If we're older than allowd
-            if( $diff_in_days > $tolerance_in_days )
-            {
+            if( $diff_in_days > $tolerance_in_days ) {
                 //Generate a random unique ID for this plugin
                 $id = 'ab_' . $this->generate_random_string( 10 );
 
@@ -263,25 +275,20 @@ EOT;
     {
         //If neither of our crons are scheduled
         //Requires WP 2.1.0
-        if ( false === wp_next_scheduled( $this->cron_name_daily ) && false === wp_next_scheduled( $this->cron_name_batching ) )
-        {
+        if ( false === wp_next_scheduled( $this->cron_name_daily ) && false === wp_next_scheduled( $this->cron_name_batching ) ) {
             $last_run = get_option( $this->option_name_last_daily_run );
 
-            if( false === $last_run || ! is_integer( $last_run ) )
-            {
+            if( false === $last_run || ! is_integer( $last_run ) ) {
                 $last_run = false;
-            }
-            else
-            {
+            } else {
                 $last_run = new \DateTime( '@' . $last_run );
             }
 
             //Get now
             $now = new \DateTime();
 
-            if( false === $last_run || (int)$now->diff( $last_run )->format( '%h' ) >= 24 )
-            {
-                $this->log_i( 'Performing watchdog routine' );
+            if( false === $last_run || (int)$now->diff( $last_run )->format( '%h' ) >= 24 ) {
+                $this->get_logger()->info( 'Performing watchdog routine' );
 
                 //Just in case, cleanup any old data
                 $this->cleanup_basic( );
@@ -299,13 +306,13 @@ EOT;
 
     public function deactivation()
     {
-        $this->log_i( 'Deactivating plugin' );
+        $this->get_logger()->info( 'Deactivating plugin' );
         $this->cleanup_deactivation();
     }
 
     public function activation()
     {
-        $this->log_i( 'Activating plugin' );
+        $this->get_logger()->info( 'Activating plugin' );
         $this->schedule_watchdog();
     }
 
@@ -315,8 +322,7 @@ EOT;
         $this->cleanup_deactivation();
 
         //Schedule a global watching cron just in case both other crons get killed
-        if ( ! wp_next_scheduled( $this->cron_name_watcher ) )
-        {
+        if ( ! wp_next_scheduled( $this->cron_name_watcher ) ) {
             //Requires WP 2.1.0
             wp_schedule_event( time(), 'hourly', $this->cron_name_watcher );
         }
@@ -331,14 +337,12 @@ EOT;
         $plugin_info = get_transient( $this->tran_name_plugin_timestamps );
 
         //Sanity check the response
-        if( false === $plugin_info || ! is_array( $plugin_info ) && 0 === count( $plugin_info ) )
-        {
+        if( false === $plugin_info || ! is_array( $plugin_info ) && 0 === count( $plugin_info ) ) {
             return $plugin_meta;
         }
 
         //See if this specific plugin is in the known list
-        if( array_key_exists( $plugin_file, $plugin_info ) )
-        {
+        if( array_key_exists( $plugin_file, $plugin_info ) ) {
             //Get now
             $now = new \DateTime();
 
@@ -352,12 +356,9 @@ EOT;
             $tolerance_in_days = apply_filters( 'vendi_plugin_health_check_tolerance_in_days', 365 );
 
             //If we're outside the window for tolerance show a message
-            if( $diff_in_days > $tolerance_in_days )
-            {
+            if( $diff_in_days > $tolerance_in_days ) {
                 $plugin_meta[] = sprintf( '<strong style="color: #f00;">This plugin has not been updated by the author in %1$d days!</strong>', $diff_in_days );
-            }
-            else
-            {
+            } else {
                 $plugin_meta[] = sprintf( '<span style="color: #090;">This plugin was last updated by the author in %1$d days ago.</span>', $diff_in_days );
             }
         }
@@ -368,8 +369,7 @@ EOT;
     public function run_check()
     {
         //Older versions of WordPress don't load this function as early so load it if needed
-        if( ! function_exists( 'get_plugins' ) )
-        {
+        if( ! function_exists( 'get_plugins' ) ) {
             require_once ABSPATH . '/wp-admin/includes/plugin.php';
         }
 
@@ -377,8 +377,7 @@ EOT;
         $responses = get_transient( $this->tran_name_plugin_timestamps );
 
         //If there was no previous result then create an empty array
-        if( false === $responses || ! is_array( $responses ) )
-        {
+        if( false === $responses || ! is_array( $responses ) ) {
             $responses = array();
         }
 
@@ -386,8 +385,7 @@ EOT;
         $all_plugins = get_transient( $this->tran_name_plugins_to_batch );
 
         //If there wasn't a previous cache
-        if( false === $all_plugins || ! is_array( $all_plugins ) )
-        {
+        if( false === $all_plugins || ! is_array( $all_plugins ) ) {
             //Get all plugins, not just those activated
             //Requires WP 1.5.0
             $all_plugins = array_keys( get_plugins() );
@@ -396,62 +394,55 @@ EOT;
             $responses = array();
         }
 
-        // print_r( $all_plugins, true );
-
         //Grab a small number of plugins to scan
         $plugins_to_scan = array_splice( $all_plugins, 0, apply_filters( 'vendi_plugin_health_check_max_plugins_to_batch', 10 ) );
 
-        //Loop through each known plugin
-        foreach( $plugins_to_scan as $k => $v )
-        {
-            //Try to get the raw information for this plugin
-            $body = $this->try_get_response_body( $v, false );
+        if(is_iterable($plugins_to_scan)){
+            //Loop through each known plugin
+            foreach( $plugins_to_scan as $k => $v ) {
+                //Try to get the raw information for this plugin
+                $body = $this->try_get_response_body( $v, false );
 
-            //We couldn't get any information, skip this plugin
-            if( false === $body )
-            {
-                continue;
-            }
+                //We couldn't get any information, skip this plugin
+                if( false === $body )
+                {
+                    continue;
+                }
 
-            //I was having trouble with the JSON call when using the plugin along with file name so
-            //I'm just using the object call
+                //I was having trouble with the JSON call when using the plugin along with file name so
+                //I'm just using the object call
 
-            //Deserialize the response
-            $obj = unserialize( $body );
+                //Deserialize the response
+                $obj = unserialize( $body );
 
-            //Sanity check that deserialization worked and that our property exists
-            if( false !== $obj && is_object( $obj ) && property_exists( $obj, 'last_updated' ) )
-            {
-                //Store the response in our master array
-                $responses[ $v ] = strtotime( $obj->last_updated );
+                //Sanity check that deserialization worked and that our property exists
+                if( false !== $obj && is_object( $obj ) && property_exists( $obj, 'last_updated' ) )
+                {
+                    //Store the response in our master array
+                    $responses[ $v ] = strtotime( $obj->last_updated );
+                }
             }
         }
 
-        if( ! defined( 'MINUTE_IN_SECONDS' ) )
-        {
+        if( ! defined( 'MINUTE_IN_SECONDS' ) ) {
             define( 'MINUTE_IN_SECONDS', 60 );
         }
 
-        if( ! defined( 'HOUR_IN_SECONDS' ) )
-        {
+        if( ! defined( 'HOUR_IN_SECONDS' ) ) {
             define( 'HOUR_IN_SECONDS', 60 * MINUTE_IN_SECONDS);
         }
 
-        if( ! defined( 'DAY_IN_SECONDS' ) )
-        {
+        if( ! defined( 'DAY_IN_SECONDS' ) ) {
             define( 'DAY_IN_SECONDS', 24 * HOUR_IN_SECONDS );
         }
 
         //Store the master response for usage in the plugin table
         set_transient( $this->tran_name_plugin_timestamps, $responses, DAY_IN_SECONDS );
 
-        if( 0 === count( $all_plugins ) )
-        {
+        if( 0 === count( $all_plugins ) ) {
             delete_transient( $this->tran_name_plugins_to_batch );
             wp_schedule_single_event( time() + DAY_IN_SECONDS, $this->cron_name_daily );
-        }
-        else
-        {
+        } else {
             set_transient( $this->tran_name_plugins_to_batch, $all_plugins, DAY_IN_SECONDS );
             wp_schedule_single_event( time(), $this->cron_name_batching );
             $this->attempt_to_spawn_next_cron();
@@ -477,8 +468,7 @@ EOT;
                             30
                         );
 
-        if( false === $fp )
-        {
+        if( false === $fp ) {
             return;
         }
 
@@ -501,8 +491,7 @@ EOT;
         //The API considers the "slug" to be the plugin's folder and
         //not what WP internally calls a "slug" which is the folder plus
         //the file that actually boots the plugin.
-        if( false !== strpos( $plugin, '/' ) )
-        {
+        if( false !== strpos( $plugin, '/' ) ) {
             $plugin = substr( $plugin, 0, strpos( $plugin, '/' ) );
         }
 
@@ -511,13 +500,11 @@ EOT;
         //Get the WordPress current version to be polite in the API call
         include( ABSPATH . WPINC . '/version.php' );
 
-        if( ! defined( 'MINUTE_IN_SECONDS' ) )
-        {
+        if( ! defined( 'MINUTE_IN_SECONDS' ) ) {
             define( 'MINUTE_IN_SECONDS', 60 );
         }
 
-        if( ! defined( 'HOUR_IN_SECONDS' ) )
-        {
+        if( ! defined( 'HOUR_IN_SECONDS' ) ) {
             define( 'HOUR_IN_SECONDS', 60 * MINUTE_IN_SECONDS);
         }
 
@@ -532,13 +519,12 @@ EOT;
 
         //If we support SSL
         //Requires WP 3.2.0
-        if ( $ssl = wp_http_supports( array( 'ssl' ) ) )
-        {
+        if ( $ssl = wp_http_supports( array( 'ssl' ) ) ) {
             //Requires WP 3.4.0
             $url = set_url_scheme( $url, 'https' );
         }
 
-        $this->log_i( 'Attempting to access URL: ' . $url . $plugin );
+        $this->get_logger()->info( 'Attempting to access URL: ' . $url . $plugin );
 
         //Try to get the response (usually the SSL version)
         //Requires WP 2.7.0
@@ -546,17 +532,15 @@ EOT;
 
         //If we don't have an error and we received a valid response code
         //Requires WP 2.7.0
-        if( ! is_wp_error( $raw_response ) && 200 == wp_remote_retrieve_response_code( $raw_response ) )
-        {
+        if( ! is_wp_error( $raw_response ) && 200 == wp_remote_retrieve_response_code( $raw_response ) ) {
             //Get the actual body
             //Requires WP 2.7.0
             $body = wp_remote_retrieve_body( $raw_response );
 
-            $this->log_d( 'Remote body:' . "\n" . $body );
+            $this->get_logger()->debug( 'Remote body:' . "\n" . $body );
 
             //Make sure that it isn't empty and also not an empty serialized object
-            if( '' != $body && 'N;' != $body  )
-            {
+            if( '' != $body && 'N;' != $body  ) {
                 //If valid, return that
                 return $body;
             }
@@ -565,14 +549,11 @@ EOT;
         //The above valid
         //If we previously tried an SSL version try without SSL
         //Code below same as above block
-        if( $ssl )
-        {
+        if( $ssl ) {
             $raw_response = wp_remote_get( $http_url . $plugin, $options );
-            if( ! is_wp_error( $raw_response ) && 200 == wp_remote_retrieve_response_code( $raw_response ) )
-            {
+            if( ! is_wp_error( $raw_response ) && 200 == wp_remote_retrieve_response_code( $raw_response ) ) {
                 $body = wp_remote_retrieve_body( $raw_response );
-                if( '' != $body && 'N;' != $body  )
-                {
+                if( '' != $body && 'N;' != $body  ) {
                     return $body;
                 }
             }
@@ -580,137 +561,5 @@ EOT;
 
         //Everything above failed, bail
         return false;
-    }
-
-    public function log_d( $message )
-    {
-        if( (int)VENDI_APC_LOG_LEVEL >= self::LOG_LEVEL_DEBUG )
-        {
-            $this->write_to_log( 'DEBUG', $message );
-        }
-    }
-
-    public function log_e( $message )
-    {
-        if( (int)VENDI_APC_LOG_LEVEL >= self::LOG_LEVEL_ERROR )
-        {
-            $this->write_to_log( 'ERROR', $message );
-        }
-    }
-
-    public function log_w( $message )
-    {
-        if( (int)VENDI_APC_LOG_LEVEL >= self::LOG_LEVEL_WARNING )
-        {
-            $this->write_to_log( 'WARNING', $message );
-        }
-    }
-
-    public function log_i( $message )
-    {
-        if( (int)VENDI_APC_LOG_LEVEL >= self::LOG_LEVEL_INFO )
-        {
-            $this->write_to_log( 'INFO', $message );
-        }
-    }
-
-    private function write_to_log( $status, $message )
-    {
-        if( ! $this->init_logger() )
-        {
-            return;
-        }
-
-        $date = date('[Y-m-d H:i:s]');
-        $msg = "$date: [$status] - $message" . PHP_EOL;
-        file_put_contents( $this->log_file, $msg, FILE_APPEND );
-    }
-
-    private function init_logger( )
-    {
-        //Check if previous attempts to log failed and if so, don't bother again.
-        if( false === $this->log_file )
-        {
-            return false;
-        }
-
-        if( null === $this->log_file )
-        {
-            if( ! is_dir( VENDI_APC_LOG_PATH ) )
-            {
-                if( defined( 'WP_DEBUG' ) && WP_DEBUG )
-                {
-                    if( ! mkdir( VENDI_APC_LOG_PATH ) )
-                    {
-                        $this->log_file = false;
-                        return false;
-                    }
-                }
-                else
-                {
-                    if( ! @mkdir( VENDI_APC_LOG_PATH ) )
-                    {
-                        $this->log_file = false;
-                        return false;
-                    }
-                }
-            }
-
-            $debug_file_name = 'apc-debug.log';
-
-            $this->log_file = trailingslashit( VENDI_APC_LOG_PATH ) . $debug_file_name;
-
-            if( ! file_exists( $this->log_file ) )
-            {
-                touch( $this->log_file );
-            }
-
-            if( ! ( is_writable( $this->log_file ) || $this->win_is_writable( $this->log_file ) ) )
-            {
-                //TODO
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     * [win_is_writable description]
-     *
-     * @see  http://core.trac.wordpress.org/browser/tags/3.3/wp-admin/includes/misc.php#L537
-     * @param  [type] $path [description]
-     * @return [type]       [description]
-     */
-    private function win_is_writable( $path )
-    {
-        /* will work in despite of Windows ACLs bug
-         * NOTE: use a trailing slash for folders!!!
-         * see http://bugs.php.net/bug.php?id=27609
-         * see http://bugs.php.net/bug.php?id=30931
-         */
-
-         // recursively return a temporary file path
-        if ( $path[strlen( $path ) - 1] == '/' ){
-            return $this->win_is_writable( $path . uniqid( mt_rand() ) . '.tmp');
-        }
-
-        if ( is_dir( $path ) ){
-            return $this->win_is_writable( $path . '/' . uniqid( mt_rand() ) . '.tmp' );
-        }
-
-        // check tmp file for read/write capabilities
-        $should_delete_tmp_file = !file_exists( $path );
-        $f = @fopen( $path, 'a' );
-        if ( $f === false ){
-            return false;
-        }
-
-        fclose( $f );
-        if ( $should_delete_tmp_file ){
-            unlink( $path );
-        }
-
-        return true;
     }
 }

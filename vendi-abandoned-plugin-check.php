@@ -9,14 +9,7 @@ Author: Vendi Advertising (Chris Haas)
 
 require_once __DIR__ . '/includes/autoload.php';
 
-if( ! defined( 'VENDI_APC_LOG_LEVEL' ) ) {
-    define( 'VENDI_APC_LOG_LEVEL', Vendi_Plugin_Health_Check::LOG_LEVEL_NONE );
-}
-
-if( ! defined( 'VENDI_APC_LOG_PATH' ) ) {
-    define( 'VENDI_APC_LOG_PATH', dirname( __FILE__ ) . '/__debug/' );
-}
-
 //Init the plugin
-new Vendi\Plugin\HealthCheck();
+$plugin = Vendi\Plugin\HealthCheck\Checker::create_with_default_file_logger();
+$plugin->register_all_hooks();
 
