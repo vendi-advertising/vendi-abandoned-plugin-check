@@ -1,6 +1,6 @@
 {
     "name": "vendi-advertising/vendi-abandoned-plugin-check",
-    "type": "library",
+    "type": "wordpress-plugin",
     "description": "Vendi Abandoned Plugin Check",
     "homepage": "https://github.com/vendi-advertising/vendi-abandoned-plugin-check",
     "license": "GPLv2 or later",
@@ -12,14 +12,24 @@
             "role": "Developer"
         }
     ],
+    "prefer-stable": true,
     "require": {
+        "composer/installers": "~1.0",
         "php": ">=5.2",
         "psr/log": "^1.1",
-        "webmozart/path-util": "^2.3",
-        "symfony/polyfill-php71": "^1.11"
+        "symfony/polyfill-php71": "^1.11",
+        "webmozart/path-util": "^2.3"
     },
     "require-dev": {
         "phpunit/phpunit": "*",
         "wpreadme2markdown/wpreadme2markdown": "^3.0"
+    },
+    "scripts": {
+        "convert-readme": [
+            "@php -r \"require_once 'vendor/autoload.php'; $txt = file_get_contents('readme.txt'); $md = \\WPReadme2Markdown\\Converter::convert($txt); file_put_contents('README.md', $md);\""
+        ]
+    },
+    "scripts-descriptions": {
+        "convert-readme": "Convert the readme.txt file to README.md format"
     }
 }

@@ -70,8 +70,9 @@ will not work.
 ## Changelog 
 
 
-### 3.3.2 
+### 3.4.0
 * WP 5.1 tested
+* Internal code re-org for better testing
 
 
 ### 3.3.0 
