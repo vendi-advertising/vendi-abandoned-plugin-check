@@ -13,10 +13,10 @@
         }
     ],
     "require": {
-        "php": ">=5.2",
-        "wpreadme2markdown/wp2md": "^3.0"
+        "php": ">=5.2"
     },
     "require-dev": {
-        "phpunit/phpunit": "*"
+        "phpunit/phpunit": "*",
+        "wpreadme2markdown/wpreadme2markdown": "^3.0"
     }
 }
