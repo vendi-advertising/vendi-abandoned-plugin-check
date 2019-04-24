@@ -12,6 +12,20 @@
             "role": "Developer"
         }
     ],
+    "repositories": [
+        {
+            "type": "package",
+            "package": {
+                "name": "wordpress/wordpress-develop",
+                "version": "master",
+                "source": {
+                    "url": "https://github.com/WordPress/wordpress-develop.git",
+                    "type": "git",
+                    "reference": "master"
+                }
+            }
+        }
+    ],
     "prefer-stable": true,
     "require": {
         "composer/installers": "~1.0",
@@ -22,14 +36,27 @@
     },
     "require-dev": {
         "phpunit/phpunit": "^4 || ^5 || ^6",
-        "wpreadme2markdown/wpreadme2markdown": "^3.0"
+        "wordpress/wordpress-develop": "dev-master",
+        "wpreadme2markdown/wpreadme2markdown": "^3.0",
+        "symfony/var-dumper": "^4.2",
+        "symfony/dotenv": "^4.2"
     },
     "scripts": {
         "convert-readme": [
             "@php -r \"require_once 'vendor/autoload.php'; $txt = file_get_contents('readme.txt'); $md = \\WPReadme2Markdown\\Converter::convert($txt); file_put_contents('README.md', $md);\""
+        ],
+        "setup-dev": [
+            "cp vendor/WordPress/wordpress-develop/wp-tests-config-sample.php tests/wp-tests-config.php",
+            "sed -i \"s/'youremptytestdbnamehere'/getenv('TEST_DB_NAME')/\" tests/wp-tests-config.php",
+            "sed -i \"s/'yourusernamehere'/getenv('TEST_DB_USER')/\" tests/wp-tests-config.php",
+            "sed -i \"s/'yourpasswordhere'/getenv('TEST_DB_PASS')/\" tests/wp-tests-config.php",
+            "sed -i \"/define( 'ABSPATH'/c\\\tdefine( 'ABSPATH', getenv('TEST_ABSPATH'));\" tests/wp-tests-config.php"
+
+
         ]
     },
     "scripts-descriptions": {
-        "convert-readme": "Convert the readme.txt file to README.md format"
+        "convert-readme": "Convert the readme.txt file to README.md format.",
+        "setup-dev": "Copy the wp-config template and setup variables."
     }
 }

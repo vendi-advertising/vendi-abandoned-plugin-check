@@ -7,7 +7,11 @@ License: GPLv2
 Author: Vendi Advertising (Chris Haas)
 */
 
-require_once __DIR__ . '/includes/autoload.php';
+if(!defined('VENDI_APC_DIR')){
+    define('VENDI_APC_DIR', dirname(__FILE__));
+}
+
+require_once VENDI_APC_DIR . '/includes/autoload.php';
 
 //Init the plugin
 $plugin = Vendi\Plugin\HealthCheck\Checker::create_with_default_file_logger();

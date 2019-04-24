@@ -128,7 +128,7 @@ class Checker
         }
     }
 
-    private function db_upgrade_0_to_2()
+    public function db_upgrade_0_to_2()
     {
         $this->get_logger()->info( 'Upgrading plugin from version 0 to version 2' );
 
@@ -139,7 +139,7 @@ class Checker
         $this->schedule_watchdog();
     }
 
-    private function cleanup_basic()
+    public function cleanup_basic()
     {
         $this->get_logger()->info( 'Clearing basic schedules and transients' );
 
@@ -200,7 +200,7 @@ class Checker
      *
      * From http://stackoverflow.com/a/4356295/231316
      */
-    private function generate_random_string( $length )
+    public function generate_random_string( $length )
     {
         $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
         $randomString = '';
