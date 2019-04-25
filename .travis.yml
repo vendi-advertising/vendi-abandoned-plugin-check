@@ -13,6 +13,9 @@ php:
 
 env:
   - WP_VERSION=latest WP_MULTISITE=0
+  - TEST_DB_NAME=wordpress_test
+  - TEST_DB_USER=travis
+  - TEST_DB_PASS=
 
 cache:
   directories:
@@ -26,8 +29,7 @@ before_install:
   - composer validate
 
 before_script:
-  - composer install --dev
-  - bash bin/install-wp-tests.sh wordpress_test travis '' localhost $WP_VERSION
+  - composer install
 
 script:
   - cd $TRAVIS_BUILD_DIR
