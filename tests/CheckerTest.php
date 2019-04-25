@@ -39,6 +39,96 @@ class CheckerTest extends \WP_UnitTestCase
         $this->assertSame(\get_option('vendi_abandoned_plugin_version'), $expected);
     }
 
+    public function assertActionDoesNotExist($tag, $function_to_check = false)
+    {
+        $this->assertFalse(\has_filter($tag, $function_to_check));
+    }
+
+    public function assertActionDoesExists($tag, $function_to_check = false)
+    {
+        $this->assertTrue(\has_filter($tag, $function_to_check));
+    }
+
+    /**
+     * @covers Vendi\Plugin\HealthCheck\Checker::register_all_hooks
+     */
+    public function test__register_all_hooks()
+    {
+        $base_name = \plugin_basename(VENDI_APC_FILE);
+        $this->assertActionDoesNotExist('activate_' . $base_name);
+        $this->assertActionDoesNotExist('vendi_cron_plugin_health_check_batching');
+        $this->assertActionDoesNotExist('vendi_cron_plugin_health_check_daily');
+        $this->assertActionDoesNotExist('vendi_cron_plugin_health_check_watcher');
+        $this->assertActionDoesNotExist('plugin_row_meta');
+        $this->assertActionDoesNotExist('plugin_install_action_links');
+        $this->assertActionDoesNotExist('plugins_api_args');
+        $this->assertActionDoesNotExist('deactivate_' . $base_name);
+
+        $obj = $this->_get_default_object();
+        $obj->register_all_hooks();
+
+        $this->assertActionDoesExists('activate_' . $base_name);
+        $this->assertActionDoesExists('vendi_cron_plugin_health_check_batching');
+        $this->assertActionDoesExists('vendi_cron_plugin_health_check_daily');
+        $this->assertActionDoesExists('vendi_cron_plugin_health_check_watcher');
+        $this->assertActionDoesExists('plugin_row_meta');
+        $this->assertActionDoesExists('plugin_install_action_links');
+        $this->assertActionDoesExists('plugins_api_args');
+        $this->assertActionDoesExists('deactivate_' . $base_name);
+    }
+
+    /**
+     * @covers Vendi\Plugin\HealthCheck\Checker::modify_plugin_api_search_query
+     */
+    public function test__modify_plugin_api_search_query()
+    {
+        $obj = $this->_get_default_object();
+
+        //This version will pass through untouched
+        $args = ['cheese' => 'yes'];
+        $this->assertSame($args, $obj->modify_plugin_api_search_query($args, ''));
+
+        //$args is expected to be an object. If the code detects that it isn't
+        //an empty object should be created with these properties.
+        $expected = new \stdClass();
+        $expected->fields = ['last_updated' => true];
+        $this->assertEquals($expected, $obj->modify_plugin_api_search_query($args, 'query_plugins'));
+
+        //If given an object, it will still add the correct fields
+        $args = new \stdClass();
+        $args->fields = [];
+        $this->assertEquals($expected, $obj->modify_plugin_api_search_query($args, 'query_plugins'));
+
+        //Extra properties should not be affected
+        $args = new \stdClass();
+        $args->fields = ['last_updated' => true];
+        $args->cheese = true;
+        $expected->cheese = true;
+        $this->assertEquals($expected, $obj->modify_plugin_api_search_query($args, 'query_plugins'));
+    }
+
+    public function test__generate_random_string()
+    {
+        $obj = $this->_get_default_object();
+        $this->assertSame(10, mb_strlen($obj->generate_random_string(10)));
+        $this->assertSame(99, mb_strlen($obj->generate_random_string(99)));
+        $this->assertRegExp('/[a-zA-Z0-9]{99}/', $obj->generate_random_string(99));
+    }
+
+    public function test__highlight_old_plugins_on_install()
+    {
+        $obj = $this->_get_default_object();
+
+        //Pass invalid arg directly through
+        $this->assertSame('cheese', $obj->highlight_old_plugins_on_install('cheese', ''));
+
+        $dt = new \DateTime;
+        $dt->modify('-3 years');
+        $ts = $dt->getTimestamp();
+        $expected = ['<strong'];
+        $this->assertEquals($expected, $obj->highlight_old_plugins_on_install([], ['last_updated' => $ts]));
+    }
+
     /**
      * @dataProvider provider_for__test__cleanup_basic__stuff
      * @covers Vendi\Plugin\HealthCheck\Checker::cleanup_basic

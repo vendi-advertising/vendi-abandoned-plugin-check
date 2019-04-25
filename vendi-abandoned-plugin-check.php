@@ -12,6 +12,10 @@ if(!defined('VENDI_APC_DIR')){
     define('VENDI_APC_DIR', dirname(__FILE__));
 }
 
+if(!defined('VENDI_APC_FILE')){
+    define('VENDI_APC_FILE', __FILE__);
+}
+
 require_once VENDI_APC_DIR . '/includes/autoload.php';
 
 //Init the plugin

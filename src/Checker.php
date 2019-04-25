@@ -66,7 +66,7 @@ class Checker
 
     public function register_all_hooks()
     {
-        register_activation_hook( __FILE__, array( $this, 'activation' ) );
+        register_activation_hook( VENDI_APC_FILE, array( $this, 'activation' ) );
 
         //Register a handler to actually run the cron if called
         add_action( $this->cron_name_batching, array( $this, 'run_check' ) );
@@ -88,7 +88,7 @@ class Checker
         add_filter( 'plugins_api_args', array( $this, 'modify_plugin_api_search_query' ), 10, 2 );
 
         //Cleanup when done
-        register_deactivation_hook( __FILE__, array( $this, 'deactivation' ) );
+        register_deactivation_hook( VENDI_APC_FILE, array( $this, 'deactivation' ) );
 
         add_action( 'admin_init', array( $this, 'check_for_upgrade' ) );
     }

@@ -7,6 +7,10 @@ if(!defined('VENDI_APC_DIR')){
     define('VENDI_APC_DIR', dirname(dirname(__FILE__)));
 }
 
+if(!defined('VENDI_APC_FILE')){
+    define('VENDI_APC_FILE', dirname(dirname(__FILE__)) . '/vendi-abandoned-plugin-check.php');
+}
+
 //Load auto-loaders
 require_once VENDI_APC_DIR . '/includes/autoload.php';
 require_once VENDI_APC_DIR . '/tests/utils.php';
