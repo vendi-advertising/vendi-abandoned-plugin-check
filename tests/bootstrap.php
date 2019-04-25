@@ -15,6 +15,7 @@ require_once VENDI_APC_DIR . '/tests/utils.php';
 $dotenv = new Symfony\Component\Dotenv\Dotenv();
 vendi__apc__dotenv__loadEnv($dotenv, VENDI_APC_DIR . '/.env');
 
+dump(VENDI_APC_DIR);
 
 //We're using an ENV here because constants weren't always working, not sure why.
 //This value will be used as WordPress's ABSPATH constant. Make sure that it
@@ -36,5 +37,9 @@ $tests_dir = Path::join(VENDI_APC_DIR, '/vendor/WordPress/wordpress-develop/test
 // require_once Path::join($tests_dir, '/includes/functions.php');
 
 // Start up the WP testing environment.
+dump($tests_dir);
+dump(is_dir($tests_dir));
+dump(Path::join($tests_dir, '/includes/bootstrap.php'));
+dump(is_file(Path::join($tests_dir, '/includes/bootstrap.php')));
 require_once Path::join($tests_dir, '/includes/bootstrap.php');
 
