@@ -17,6 +17,11 @@ class ComposerEvents
         $bad_dir = Path::join($vendor_dir, 'WordPress');
         $good_dir = Path::join($vendor_dir, 'wordpress');
 
+        //If the folder already exists, assume it is good
+        if(\is_dir($good_dir)){
+            return;
+        }
+
         if(\is_dir($bad_dir)){
             \rename($bad_dir, $good_dir);
         }
@@ -54,6 +59,18 @@ class ComposerEvents
             "sed -i \"s/'yourpasswordhere'/getenv('TEST_DB_PASS')/\" tests/wp-tests-config.php",
             "sed -i \"/define( 'ABSPATH'/c\\\tdefine( 'ABSPATH', getenv('TEST_ABSPATH'));\" tests/wp-tests-config.php"
         */
+    }
+
+    public static function delTree($dir) {
+        $files = array_diff(scandir($dir), array('.','..'));
+        foreach ($files as $file) {
+            if(is_dir("$dir/$file")){
+                self::delTree("$dir/$file");
+            }else{
+                unlink("$dir/$file");
+            }
+        }
+        return rmdir($dir);
     }
 
     public static function _load_autoload(Event $event)
