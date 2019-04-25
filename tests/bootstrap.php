@@ -16,6 +16,10 @@ $dotenv = new Symfony\Component\Dotenv\Dotenv();
 vendi__apc__dotenv__loadEnv($dotenv, VENDI_APC_DIR . '/.env');
 
 dump(VENDI_APC_DIR);
+dump(is_dir(VENDI_APC_DIR));
+dump(__DIR__);
+dump(is_dir(__DIR__));
+
 
 //We're using an ENV here because constants weren't always working, not sure why.
 //This value will be used as WordPress's ABSPATH constant. Make sure that it
