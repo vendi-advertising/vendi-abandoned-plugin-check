@@ -210,18 +210,18 @@ class Checker
         return $randomString;
     }
 
+    public function get_number_of_days_between_two_dates(\DateTime $a, \DateTime $b)
+    {
+        return abs( (int) $a->diff( $b )->format( '%a' ) );
+    }
+
     public function highlight_old_plugins_on_install( $action_links, $plugin )
     {
         // print_r( $plugin );
         if( is_array( $plugin ) && array_key_exists( 'last_updated', $plugin ) ) {
-            //Get now
-            $now = new \DateTime();
-
-            //Last updated is stored as timestamp, get a real date
-            $plugin_last_updated_date = new \DateTime( $plugin['last_updated'] );
 
             //Compute days between now and plugin last updated
-            $diff_in_days = $now->diff( $plugin_last_updated_date )->format( '%a' );
+            $diff_in_days = $this->get_number_of_days_between_two_dates(new \DateTime(), new \DateTime( $plugin['last_updated'] ));
 
             //Customizable number of days for tolerance
             $tolerance_in_days = apply_filters( 'vendi_plugin_health_check_tolerance_in_days', 365 );
@@ -317,14 +317,12 @@ class Checker
 
         //See if this specific plugin is in the known list
         if( array_key_exists( $plugin_file, $plugin_info ) ) {
-            //Get now
-            $now = new \DateTime();
 
             //Last updated is stored as timestamp, get a real date
             $plugin_last_updated_date = new \DateTime( '@' . $plugin_info[ $plugin_file ] );
 
             //Compute days between now and plugin last updated
-            $diff_in_days = $now->diff( $plugin_last_updated_date )->format( '%a' );
+            $diff_in_days = $this->get_number_of_days_between_two_dates(new \DateTime(), $plugin_last_updated_date);
 
             //Customizable number of days for tolerance
             $tolerance_in_days = apply_filters( 'vendi_plugin_health_check_tolerance_in_days', 365 );
@@ -378,8 +376,7 @@ class Checker
                 $body = $this->try_get_response_body( $v, false );
 
                 //We couldn't get any information, skip this plugin
-                if( false === $body )
-                {
+                if( false === $body ) {
                     continue;
                 }
 
@@ -390,8 +387,7 @@ class Checker
                 $obj = unserialize( $body );
 
                 //Sanity check that deserialization worked and that our property exists
-                if( false !== $obj && is_object( $obj ) && property_exists( $obj, 'last_updated' ) )
-                {
+                if( false !== $obj && is_object( $obj ) && property_exists( $obj, 'last_updated' ) ) {
                     //Store the response in our master array
                     $responses[ $v ] = strtotime( $obj->last_updated );
                 }
@@ -454,6 +450,58 @@ class Checker
         fclose( $fp );
     }
 
+    public function get_urls_for_plugin_as_tuple( $plugin )
+    {
+        $base = 'http://api.wordpress.org/plugins/info/1.0/';
+
+        $fallback_url = $base . $plugin;
+        $primary_url  = $base . $plugin;
+
+        //If we support SSL
+        //Requires WP 3.2.0
+        if ( $ssl = wp_http_supports( array( 'ssl' ) ) ) {
+            //Requires WP 3.4.0
+            $primary_url = set_url_scheme( $primary_url, 'https' );
+        }
+
+        return [$primary_url, $fallback_url];
+    }
+
+    public function try_get_response_body_imp($url)
+    {
+        $raw_response = wp_remote_get( $url, $options );
+
+        //If we don't have an error and we received a valid response code
+        //Requires WP 2.7.0
+        if( ! is_wp_error( $raw_response ) && 200 == wp_remote_retrieve_response_code( $raw_response ) ) {
+            //Get the actual body
+            //Requires WP 2.7.0
+            $body = wp_remote_retrieve_body( $raw_response );
+
+            $this->get_logger()->debug( 'Remote body:' . "\n" . $body );
+
+            //Make sure that it isn't empty and also not an empty serialized object
+            if( '' != $body && 'N;' != $body  ) {
+                //If valid, return that
+                return $body;
+            }
+        }
+
+        return false;
+    }
+
+    public function get_slug_from_plugin($plugin)
+    {
+        //The API considers the "slug" to be the plugin's folder and
+        //not what WP internally calls a "slug" which is the folder plus
+        //the file that actually boots the plugin.
+        if( false !== strpos( $plugin, '/' ) ) {
+            $plugin = substr( $plugin, 0, strpos( $plugin, '/' ) );
+        }
+
+        return $plugin;
+    }
+
     /**
      * Makes an attempt to get valid information on a specific plugin
      *
@@ -462,12 +510,7 @@ class Checker
      */
     private function try_get_response_body( $plugin )
     {
-        //The API considers the "slug" to be the plugin's folder and
-        //not what WP internally calls a "slug" which is the folder plus
-        //the file that actually boots the plugin.
-        if( false !== strpos( $plugin, '/' ) ) {
-            $plugin = substr( $plugin, 0, strpos( $plugin, '/' ) );
-        }
+        $plugin = $this->get_slug_from_plugin($plugin);
 
         //Some of this code is lifted from class-wp-upgrader
 
@@ -488,52 +531,29 @@ class Checker
             'user-agent' => 'WordPress/' . $wp_version . '; ' . get_bloginfo( 'url' )
         );
 
-        //The URL for the endpoint
-        $url = $http_url = 'http://api.wordpress.org/plugins/info/1.0/';
+        //Create two URLs. The primary URL will attempt to be made a secure one
+        //which should work in almost every case. The fallback URL will not be secure.
+        list($primary_url, $fallback_url) = $this->get_urls_for_plugin_as_tuple($plugin);
 
-        //If we support SSL
-        //Requires WP 3.2.0
-        if ( $ssl = wp_http_supports( array( 'ssl' ) ) ) {
-            //Requires WP 3.4.0
-            $url = set_url_scheme( $url, 'https' );
-        }
-
-        $this->get_logger()->info( 'Attempting to access URL: ' . $url . $plugin );
+        $this->get_logger()->info( 'Attempting to access primary URL: ' . $primary_url );
 
         //Try to get the response (usually the SSL version)
-        //Requires WP 2.7.0
-        $raw_response = wp_remote_get( $url . $plugin, $options );
+        $body = $this->try_get_response_body_imp($primary_url);
+        if($body){
+            return $body;
+        }
 
-        //If we don't have an error and we received a valid response code
-        //Requires WP 2.7.0
-        if( ! is_wp_error( $raw_response ) && 200 == wp_remote_retrieve_response_code( $raw_response ) ) {
-            //Get the actual body
-            //Requires WP 2.7.0
-            $body = wp_remote_retrieve_body( $raw_response );
+        //If we tried accessing the secure URL and it failed, try accessing
+        //the non-secure one.
+        if( $fallback_url !== $primary_url ) {
 
-            $this->get_logger()->debug( 'Remote body:' . "\n" . $body );
-
-            //Make sure that it isn't empty and also not an empty serialized object
-            if( '' != $body && 'N;' != $body  ) {
-                //If valid, return that
+            $body = $this->try_get_response_body_imp($fallback_url);
+            if($body){
                 return $body;
             }
         }
 
-        //The above valid
-        //If we previously tried an SSL version try without SSL
-        //Code below same as above block
-        if( $ssl ) {
-            $raw_response = wp_remote_get( $http_url . $plugin, $options );
-            if( ! is_wp_error( $raw_response ) && 200 == wp_remote_retrieve_response_code( $raw_response ) ) {
-                $body = wp_remote_retrieve_body( $raw_response );
-                if( '' != $body && 'N;' != $body  ) {
-                    return $body;
-                }
-            }
-        }
-
-        //Everything above failed, bail
         return false;
+
     }
 }

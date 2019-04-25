@@ -107,6 +107,9 @@ class CheckerTest extends \WP_UnitTestCase
         $this->assertEquals($expected, $obj->modify_plugin_api_search_query($args, 'query_plugins'));
     }
 
+    /**
+     * @covers Vendi\Plugin\HealthCheck\Checker::generate_random_string
+     */
     public function test__generate_random_string()
     {
         $obj = $this->_get_default_object();
@@ -115,6 +118,20 @@ class CheckerTest extends \WP_UnitTestCase
         $this->assertRegExp('/[a-zA-Z0-9]{99}/', $obj->generate_random_string(99));
     }
 
+    /**
+     * @dataProvider provider_for__get_number_of_days_between_two_dates
+     * @covers Vendi\Plugin\HealthCheck\Checker::get_number_of_days_between_two_dates
+     */
+    public function test__get_number_of_days_between_two_dates($expected, $a, $b)
+    {
+        //Run in both directions because the order shouldn't matter
+        $this->assertSame($expected, $this->_get_default_object()->get_number_of_days_between_two_dates(new \DateTime($a), new \DateTime($b)));
+        $this->assertSame($expected, $this->_get_default_object()->get_number_of_days_between_two_dates(new \DateTime($b), new \DateTime($a)));
+    }
+
+    /**
+     * @covers Vendi\Plugin\HealthCheck\Checker::highlight_old_plugins_on_install
+     */
     public function test__highlight_old_plugins_on_install()
     {
         $obj = $this->_get_default_object();
@@ -122,11 +139,17 @@ class CheckerTest extends \WP_UnitTestCase
         //Pass invalid arg directly through
         $this->assertSame('cheese', $obj->highlight_old_plugins_on_install('cheese', ''));
 
-        $dt = new \DateTime;
-        $dt->modify('-3 years');
-        $ts = $dt->getTimestamp();
-        $expected = ['<strong'];
-        $this->assertEquals($expected, $obj->highlight_old_plugins_on_install([], ['last_updated' => $ts]));
+        $result = $obj->highlight_old_plugins_on_install([], ['last_updated' => '2015-05-21 7:21pm GMT']);
+        $this->assertTrue(is_array($result));
+        $found = false;
+        foreach($result as $item){
+            if(is_string($item) && 0 === mb_strpos($item, '<strong id="ab_') ){
+                $found = true;
+                break;
+            }
+        }
+
+        $this->assertTrue($found, 'Could not find string marking plugin as old');
     }
 
     /**
@@ -248,5 +271,14 @@ class CheckerTest extends \WP_UnitTestCase
             array('0', 1),
             array(2, 1),
         );
+    }
+
+    public function provider_for__get_number_of_days_between_two_dates()
+    {
+        return [
+            [1, '2018-01-01', '2018-01-02'],
+            [5, '2018-01-01', '2018-01-06'],
+            [34, '2018-03-01', '2018-04-04'],
+        ];
     }
 }
