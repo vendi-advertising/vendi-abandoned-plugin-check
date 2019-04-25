@@ -49,7 +49,7 @@ class Checker
         $this->logger = $logger;
     }
 
-    public function get_logger() : LoggerInterface
+    public function get_logger()
     {
         return $this->logger;
     }

@@ -168,13 +168,13 @@ class Logger extends AbstractLogger
     }
 
     //https://github.com/Seldaek/monolog/blob/ebb804e432e8fe0fe96828f30d89c45581d36d07/src/Monolog/Formatter/LineFormatter.php#L124
-    public function stringify($value): string
+    public function stringify($value)
     {
         return $this->replaceNewlines($this->convertToString($value));
     }
 
     //https://github.com/Seldaek/monolog/blob/ebb804e432e8fe0fe96828f30d89c45581d36d07/src/Monolog/Formatter/LineFormatter.php#L145
-    protected function convertToString($data): string
+    protected function convertToString($data)
     {
         if (null === $data || is_bool($data)) {
             return var_export($data, true);
@@ -186,7 +186,7 @@ class Logger extends AbstractLogger
     }
 
     //https://github.com/Seldaek/monolog/blob/ebb804e432e8fe0fe96828f30d89c45581d36d07/src/Monolog/Formatter/LineFormatter.php#L158
-    protected function replaceNewlines(string $str): string
+    protected function replaceNewlines(string $str)
     {
         return str_replace(["\r\n", "\r", "\n"], ' ', $str);
     }
