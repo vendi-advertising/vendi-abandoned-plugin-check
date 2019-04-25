@@ -4,7 +4,7 @@ namespace Vendi\Plugin\HealthCheck;
 
 final class Utils
 {
-    public static function get_js_for_install_card_by_id(string $id)
+    public static function get_js_for_install_card_by_id($id)
     {
         return <<<EOT
 <script>

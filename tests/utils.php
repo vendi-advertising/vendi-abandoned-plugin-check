@@ -6,7 +6,7 @@ use Symfony\Component\Dotenv\Dotenv;
  * Code from Symfony, back-ported to older versions of PHP
  * @see https://github.com/symfony/dotenv/blob/fad49a7b00d72bbd120255048b488da9dd963d70/Dotenv.php#L82
  */
-function vendi__apc__dotenv__loadEnv(Dotenv $dotenv, string $path, string $varName = 'APP_ENV', string $defaultEnv = 'dev', array $testEnvs = ['test'])
+function vendi__apc__dotenv__loadEnv(Dotenv $dotenv, $path, $varName = 'APP_ENV', $defaultEnv = 'dev', array $testEnvs = ['test'])
 {
     if (file_exists($path) || !file_exists($p = "$path.dist")) {
         $dotenv->load($path);

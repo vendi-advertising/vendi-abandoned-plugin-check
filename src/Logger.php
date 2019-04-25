@@ -12,12 +12,12 @@ class Logger extends AbstractLogger
 {
     private $log_file;
 
-    public function __construct(string $log_file)
+    public function __construct($log_file)
     {
         $this->log_file = $log_file;
     }
 
-    public static function create_with_plugin_relative_file_path(string $file_path)
+    public static function create_with_plugin_relative_file_path($file_path)
     {
         $abs_path = Path::join(VENDI_APC_DIR, $file_path);
         return new self($abs_path);
@@ -161,7 +161,7 @@ class Logger extends AbstractLogger
     }
 
     //https://github.com/Seldaek/monolog/blob/ebb804e432e8fe0fe96828f30d89c45581d36d07/src/Monolog/Formatter/NormalizerFormatter.php#L244
-    protected function toJson($data, bool $ignoreErrors = false)
+    protected function toJson($data, $ignoreErrors = false)
     {
         // suppress json_encode errors since it's twitchy with some inputs
         return @$this->jsonEncode($data);
@@ -186,7 +186,7 @@ class Logger extends AbstractLogger
     }
 
     //https://github.com/Seldaek/monolog/blob/ebb804e432e8fe0fe96828f30d89c45581d36d07/src/Monolog/Formatter/LineFormatter.php#L158
-    protected function replaceNewlines(string $str)
+    protected function replaceNewlines($str)
     {
         return str_replace(["\r\n", "\r", "\n"], ' ', $str);
     }
