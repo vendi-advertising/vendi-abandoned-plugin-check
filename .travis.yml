@@ -28,6 +28,7 @@ before_install:
 before_script:
   - composer install
   - composer run setup-dev
+  - bash bin/install-wp-tests.sh wordpress_test travis '' localhost $WP_VERSION
 
 script:
   - cd $TRAVIS_BUILD_DIR
