@@ -15,18 +15,18 @@ require_once VENDI_APC_DIR . '/tests/utils.php';
 $dotenv = new Symfony\Component\Dotenv\Dotenv();
 vendi__apc__dotenv__loadEnv($dotenv, VENDI_APC_DIR . '/.env');
 
-$debug_path_parts = explode('/', 'vendor/wordpress/wordpress-develop/src');
-$debug_path = VENDI_APC_DIR;
-foreach($debug_path_parts as $p){
-    $debug_path = Path::join($debug_path, $p);
-    dump($debug_path);
-    dump(is_dir($debug_path));
-}
+// $debug_path_parts = explode('/', 'vendor/wordpress/wordpress-develop/src');
+// $debug_path = VENDI_APC_DIR;
+// foreach($debug_path_parts as $p){
+//     $debug_path = Path::join($debug_path, $p);
+//     dump($debug_path);
+//     dump(is_dir($debug_path));
+// }
 
 //We're using an ENV here because constants weren't always working, not sure why.
 //This value will be used as WordPress's ABSPATH constant. Make sure that it
 //ends with a slash!
-putenv('TEST_ABSPATH=' . Path::join(VENDI_APC_DIR, '/vendor/WordPress/wordpress-develop/src') . '/');
+putenv('TEST_ABSPATH=' . Path::join(VENDI_APC_DIR, '/vendor/wordpress/wordpress-develop/src') . '/');
 
 //This is the absolute path to the config file. Most sources say it should live
 //relative to the test folder however this constant can be used to put it anywhere.
@@ -37,7 +37,7 @@ if(!is_readable(WP_TESTS_CONFIG_FILE_PATH)){
 }
 
 //This is the location of WordPress unit tests
-$tests_dir = Path::join(VENDI_APC_DIR, '/vendor/WordPress/wordpress-develop/tests/phpunit/');
+$tests_dir = Path::join(VENDI_APC_DIR, '/vendor/wordpress/wordpress-develop/tests/phpunit/');
 
 // Give access to tests_add_filter() function.
 // require_once Path::join($tests_dir, '/includes/functions.php');
