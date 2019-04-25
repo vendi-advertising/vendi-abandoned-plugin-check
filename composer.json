@@ -3,7 +3,7 @@
     "type": "wordpress-plugin",
     "description": "Vendi Abandoned Plugin Check",
     "homepage": "https://github.com/vendi-advertising/vendi-abandoned-plugin-check",
-    "license": "GPLv2 or later",
+    "license": "GPL-2.0-or-later",
     "authors": [
         {
             "name": "Chris Haas",
