@@ -2,3 +2,4 @@ tests/logs/
 vendor/
 wp
 wordpress/
+tests/wp-tests-config.php
