@@ -12,10 +12,7 @@ php:
   - 7.3
 
 env:
-  - WP_VERSION=latest WP_MULTISITE=0
-  - TEST_DB_NAME=wordpress_test
-  - TEST_DB_USER=travis
-  - TEST_DB_PASS=
+  - WP_VERSION=latest WP_MULTISITE=0 TEST_DB_NAME=wordpress_test TEST_DB_USER=travis TEST_DB_PASS=
 
 cache:
   directories:
