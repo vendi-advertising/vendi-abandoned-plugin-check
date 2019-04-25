@@ -9,10 +9,12 @@ if(!defined('VENDI_APC_DIR')){
 
 //Load auto-loaders
 require_once VENDI_APC_DIR . '/includes/autoload.php';
+require_once VENDI_APC_DIR . '/tests/utils.php';
 
 //Load config-specific environment variables
 $dotenv = new Symfony\Component\Dotenv\Dotenv();
-$dotenv->loadEnv(VENDI_APC_DIR . '/.env');
+vendi__apc__dotenv__loadEnv($dotenv, VENDI_APC_DIR . '/.env');
+
 
 //We're using an ENV here because constants weren't always working, not sure why.
 //This value will be used as WordPress's ABSPATH constant. Make sure that it
