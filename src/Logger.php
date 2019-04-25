@@ -40,7 +40,7 @@ class Logger extends AbstractLogger
         }
     }
 
-    public function try_make_log_dir() : bool
+    public function try_make_log_dir()
     {
         $log_dir = $this->get_log_folder();
         if(is_dir($log_dir)){
