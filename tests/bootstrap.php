@@ -15,7 +15,7 @@ require_once VENDI_APC_DIR . '/tests/utils.php';
 $dotenv = new Symfony\Component\Dotenv\Dotenv();
 vendi__apc__dotenv__loadEnv($dotenv, VENDI_APC_DIR . '/.env');
 
-$debug_path_parts = explode('/', 'vendor/WordPress/wordpress-develop/src');
+$debug_path_parts = explode('/', 'vendor/wordpress/wordpress-develop/src');
 $debug_path = VENDI_APC_DIR;
 foreach($debug_path_parts as $p){
     $debug_path = Path::join($debug_path, $p);

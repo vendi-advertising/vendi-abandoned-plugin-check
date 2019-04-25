@@ -19,7 +19,7 @@
                 "name": "wordpress/wordpress-develop",
                 "version": "master",
                 "source": {
-                    "url": "https://github.com/WordPress/wordpress-develop.git",
+                    "url": "https://github.com/wordpress/wordpress-develop.git",
                     "type": "git",
                     "reference": "master"
                 }
@@ -46,7 +46,7 @@
             "@php -r \"require_once 'vendor/autoload.php'; $txt = file_get_contents('readme.txt'); $md = \\WPReadme2Markdown\\Converter::convert($txt); file_put_contents('README.md', $md);\""
         ],
         "setup-dev": [
-            "cp vendor/WordPress/wordpress-develop/wp-tests-config-sample.php tests/wp-tests-config.php",
+            "cp vendor/wordpress/wordpress-develop/wp-tests-config-sample.php tests/wp-tests-config.php",
             "sed -i \"s/'youremptytestdbnamehere'/getenv('TEST_DB_NAME')/\" tests/wp-tests-config.php",
             "sed -i \"s/'yourusernamehere'/getenv('TEST_DB_USER')/\" tests/wp-tests-config.php",
             "sed -i \"s/'yourpasswordhere'/getenv('TEST_DB_PASS')/\" tests/wp-tests-config.php",
