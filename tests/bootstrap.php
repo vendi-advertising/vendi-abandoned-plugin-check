@@ -15,11 +15,13 @@ require_once VENDI_APC_DIR . '/tests/utils.php';
 $dotenv = new Symfony\Component\Dotenv\Dotenv();
 vendi__apc__dotenv__loadEnv($dotenv, VENDI_APC_DIR . '/.env');
 
-dump(VENDI_APC_DIR);
-dump(is_dir(VENDI_APC_DIR));
-dump(__DIR__);
-dump(is_dir(__DIR__));
-
+$debug_path_parts = explode('/', 'vendor/WordPress/wordpress-develop/src');
+$debug_path = VENDI_APC_DIR;
+foreach($debug_path_parts as $p){
+    $debug_path = Path::join($debug_path, $p);
+    dump($debug_path);
+    dump(is_dir($debug_path));
+}
 
 //We're using an ENV here because constants weren't always working, not sure why.
 //This value will be used as WordPress's ABSPATH constant. Make sure that it
