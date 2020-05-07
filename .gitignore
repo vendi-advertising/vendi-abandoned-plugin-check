@@ -3,3 +3,4 @@ vendor/
 wp
 wordpress/
 tests/wp-tests-config.php
+/composer.phar

@@ -8,11 +8,11 @@ License: GPLv2
 Author: Vendi Advertising (Chris Haas)
 */
 
-if(!defined('VENDI_APC_DIR')){
+if (!defined('VENDI_APC_DIR')) {
     define('VENDI_APC_DIR', dirname(__FILE__));
 }
 
-if(!defined('VENDI_APC_FILE')){
+if (!defined('VENDI_APC_FILE')) {
     define('VENDI_APC_FILE', __FILE__);
 }
 

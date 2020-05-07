@@ -4,9 +4,12 @@ namespace Vendi\Plugin\HealthCheck;
 
 use Psr\Log\AbstractLogger;
 use Webmozart\PathUtil\Path;
+use const JSON_PRESERVE_ZERO_FRACTION;
+use const JSON_UNESCAPED_SLASHES;
+use const JSON_UNESCAPED_UNICODE;
 
 /*
-Parts of this code are from the Monologo library
+Parts of this code are from the Monolog library
 */
 class Logger extends AbstractLogger
 {
@@ -48,12 +51,14 @@ class Logger extends AbstractLogger
         }
 
         try{
-            mkdir($log_dir, 0777, true);
+            if (!mkdir($log_dir, 0777, true) && !is_dir($log_dir)) {
+                return false;
+            }
         }catch(\Exception $ex){
             return false;
         }
 
-        return is_dir($log_dir);
+        return true;
     }
 
     public function try_make_log_file()
@@ -132,11 +137,11 @@ class Logger extends AbstractLogger
 
          // recursively return a temporary file path
         if ( $path[strlen( $path ) - 1] == '/' ){
-            return $this->win_is_writable( $path . uniqid( mt_rand() ) . '.tmp');
+            return $this->win_is_writable( $path . uniqid(mt_rand(), true) . '.tmp');
         }
 
         if ( is_dir( $path ) ){
-            return $this->win_is_writable( $path . '/' . uniqid( mt_rand() ) . '.tmp' );
+            return $this->win_is_writable( $path . '/' . uniqid(mt_rand(), true) . '.tmp' );
         }
 
         // check tmp file for read/write capabilities
@@ -157,7 +162,7 @@ class Logger extends AbstractLogger
     //https://github.com/Seldaek/monolog/blob/ebb804e432e8fe0fe96828f30d89c45581d36d07/src/Monolog/Formatter/NormalizerFormatter.php#L264
     private function jsonEncode($data)
     {
-        return json_encode($data, \JSON_UNESCAPED_SLASHES | \JSON_UNESCAPED_UNICODE | \JSON_PRESERVE_ZERO_FRACTION);
+        return json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRESERVE_ZERO_FRACTION);
     }
 
     //https://github.com/Seldaek/monolog/blob/ebb804e432e8fe0fe96828f30d89c45581d36d07/src/Monolog/Formatter/NormalizerFormatter.php#L244
