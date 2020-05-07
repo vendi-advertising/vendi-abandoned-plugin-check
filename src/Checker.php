@@ -261,7 +261,7 @@ class Checker
                 $text = sprintf('<strong id="%1$s" style="color: #f00; display: block; background-color: #fff; padding: 3px; border: 1px solid #f00; text-align: left;">This plugin has not been updated by the author in %2$d days!</strong>', $id, $diff_in_days);
 
                 //Also output some JS that hopefully can find the parent "card" and style that as well
-                $js = utils::get_js_for_install_card_by_id($id);
+                $js = Utils::get_js_for_install_card_by_id($id);
 
                 //Combine the text and JS
                 $action_links[] = $text . $js;
