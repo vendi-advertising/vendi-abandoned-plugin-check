@@ -16,10 +16,10 @@ class CheckerTest extends \WP_UnitTestCase
     }
 
     /**
-     * @covers Vendi\Plugin\HealthCheck\Checker::__construct
-     * @covers Vendi\Plugin\HealthCheck\Checker::get_logger
-     * @covers Vendi\Plugin\HealthCheck\Checker::create_with_null_logger
-     * @covers Vendi\Plugin\HealthCheck\Checker::create_with_default_file_logger
+     * @covers \Vendi\Plugin\HealthCheck\Checker::__construct
+     * @covers \Vendi\Plugin\HealthCheck\Checker::get_logger
+     * @covers \Vendi\Plugin\HealthCheck\Checker::create_with_null_logger
+     * @covers \Vendi\Plugin\HealthCheck\Checker::create_with_default_file_logger
      */
     public function test__static_constructors()
     {
@@ -29,7 +29,7 @@ class CheckerTest extends \WP_UnitTestCase
 
     /**
      * @dataProvider provider_for__check_for_upgrade
-     * @covers Vendi\Plugin\HealthCheck\Checker::cleanup_basic
+     * @covers \Vendi\Plugin\HealthCheck\Checker::cleanup_basic
      */
     public function test__check_for_upgrade($value, $expected)
     {
@@ -50,7 +50,7 @@ class CheckerTest extends \WP_UnitTestCase
     }
 
     /**
-     * @covers Vendi\Plugin\HealthCheck\Checker::register_all_hooks
+     * @covers \Vendi\Plugin\HealthCheck\Checker::register_all_hooks
      */
     public function test__register_all_hooks()
     {
@@ -78,7 +78,7 @@ class CheckerTest extends \WP_UnitTestCase
     }
 
     /**
-     * @covers Vendi\Plugin\HealthCheck\Checker::modify_plugin_api_search_query
+     * @covers \Vendi\Plugin\HealthCheck\Checker::modify_plugin_api_search_query
      */
     public function test__modify_plugin_api_search_query()
     {
@@ -108,7 +108,7 @@ class CheckerTest extends \WP_UnitTestCase
     }
 
     /**
-     * @covers Vendi\Plugin\HealthCheck\Checker::generate_random_string
+     * @covers \Vendi\Plugin\HealthCheck\Checker::generate_random_string
      */
     public function test__generate_random_string()
     {
@@ -120,7 +120,7 @@ class CheckerTest extends \WP_UnitTestCase
 
     /**
      * @dataProvider provider_for__get_number_of_days_between_two_dates
-     * @covers Vendi\Plugin\HealthCheck\Checker::get_number_of_days_between_two_dates
+     * @covers \Vendi\Plugin\HealthCheck\Checker::get_number_of_days_between_two_dates
      */
     public function test__get_number_of_days_between_two_dates($expected, $a, $b)
     {
@@ -130,7 +130,7 @@ class CheckerTest extends \WP_UnitTestCase
     }
 
     /**
-     * @covers Vendi\Plugin\HealthCheck\Checker::highlight_old_plugins_on_install
+     * @covers \Vendi\Plugin\HealthCheck\Checker::highlight_old_plugins_on_install
      */
     public function test__highlight_old_plugins_on_install()
     {
@@ -154,8 +154,8 @@ class CheckerTest extends \WP_UnitTestCase
 
     /**
      * @dataProvider provider_for__test__cleanup_basic__stuff
-     * @covers Vendi\Plugin\HealthCheck\Checker::cleanup_basic
-     * @covers Vendi\Plugin\HealthCheck\Checker::cleanup_deactivation
+     * @covers \Vendi\Plugin\HealthCheck\Checker::cleanup_basic
+     * @covers \Vendi\Plugin\HealthCheck\Checker::cleanup_deactivation
      */
     public function test__cleanup_deactivation($stuff)
     {

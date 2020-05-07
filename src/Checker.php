@@ -470,13 +470,18 @@ class Checker
 
         $parts = parse_url($url);
 
-        $fp = fsockopen(
-            $parts['host'],
-            isset($parts['port']) ? $parts['port'] : 80,
-            $errno,
-            $errstr,
-            30
-        );
+        try {
+            $fp = fsockopen(
+                $parts['host'],
+                isset($parts['port']) ? $parts['port'] : 80,
+                $errno,
+                $errstr,
+                30
+            );
+        } catch (Exception $ex) {
+            $this->get_logger()->error('Could not spawn next cron', ['exception' => $ex]);
+            return;
+        }
 
         if (false === $fp) {
             return;
