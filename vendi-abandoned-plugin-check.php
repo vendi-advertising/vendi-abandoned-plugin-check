@@ -2,7 +2,7 @@
 /*
 Plugin Name: Vendi Abandoned Plugin Check
 Description: Provides information about abandoned plugins
-Version: 3.5.8
+Version: 3.7.1
 Requires PHP: 5.6
 License: GPLv2
 Author: Vendi Advertising (Chris Haas)
