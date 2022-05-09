@@ -4,7 +4,7 @@ Tags: admin, abandoned, plugin
 Requires at least: 5.4
 Requires PHP: 5.6
 Tested up to: 5.9
-Stable tag: 3.5.9
+Stable tag: 3.7.0
 License: GPLv2 or later
 
 Helps find abandoned plugins by showing how many days since their last SVN update.
@@ -16,6 +16,8 @@ This plugin will query the WordPress.org servers in a background task to determi
 This plugin has no interface. It only runs a background task daily and then modifies the main plugin table by adding the number of days since the plugin was last updated.
 
 This plugin has not been tested with multi-site yet.
+
+Feel free to contribute to this plugin on [GitHub](https://github.com/vendi-advertising/vendi-abandoned-plugin-check/)!
 
 == Installation ==
 
@@ -48,6 +50,9 @@ Depending on how many plugins you have installed it might take a couple of minut
 2. Example showing old plugins when searching.
 
 == Changelog ==
+
+= 3.7.0 =
+* Switching to GitHub for development, using actions for deploy to SVN
 
 = 3.5.8 =
 * WP 5.9 tested
