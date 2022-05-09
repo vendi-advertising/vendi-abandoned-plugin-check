@@ -4,7 +4,7 @@ Tags: admin, abandoned, plugin
 Requires at least: 5.4
 Requires PHP: 5.6
 Tested up to: 5.9
-Stable tag: 3.5.8
+Stable tag: 3.5.9
 License: GPLv2 or later
 
 Helps find abandoned plugins by showing how many days since their last SVN update.
