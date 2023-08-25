@@ -3,8 +3,8 @@ Contributors: chrisvendiadvertisingcom
 Tags: admin, abandoned, plugin
 Requires at least: 5.4
 Requires PHP: 5.6
-Tested up to: 5.9
-Stable tag: 3.7.1
+Tested up to: 6.3
+Stable tag: 3.7.2
 License: GPLv2 or later
 
 Helps find abandoned plugins by showing how many days since their last SVN update.
@@ -50,6 +50,9 @@ Depending on how many plugins you have installed it might take a couple of minut
 2. Example showing old plugins when searching.
 
 == Changelog ==
+
+= 3.7.2 =
+* WP 6.3 tested
 
 = 3.7.0 =
 * Switching to GitHub for development, using actions for deploy to SVN
