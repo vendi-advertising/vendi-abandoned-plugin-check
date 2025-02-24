@@ -1,11 +1,11 @@
 === Vendi Abandoned Plugin Check ===
 Contributors: chrisvendiadvertisingcom
 Tags: admin, abandoned, plugin
+Version: 5.0.0
 Requires at least: 6.3
-Requires PHP: 7.0
-Tested up to: 6.4
-Stable tag: 4.0.0
-License: GPLv2 or later
+Tested up to: 6.7
+Requires PHP: 7.4
+License: GPLv2
 
 Helps find abandoned plugins by showing how many days since their last SVN update.
 
@@ -50,6 +50,10 @@ Depending on how many plugins you have installed it might take a couple of minut
 2. Example showing old plugins when searching.
 
 == Changelog ==
+
+= 5.0.0 =
+* Require PHP 7.4 or greater
+* WP 6.7 tested
 
 = 4.0.0 =
 * Require PHP 7 or greater
