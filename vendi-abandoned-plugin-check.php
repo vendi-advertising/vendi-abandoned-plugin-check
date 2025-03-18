@@ -416,7 +416,7 @@ class Vendi_Plugin_Health_Check
             $body = $this->try_get_response_body($v);
 
             //We couldn't get any information, skip this plugin
-            if (false === $body) {
+            if (!$body) {
                 continue;
             }
 
