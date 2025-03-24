@@ -1,13 +1,15 @@
-<?php /** @noinspection AutoloadingIssuesInspection */
+<?php
+/** @noinspection AutoloadingIssuesInspection */
 
 /*
 Plugin Name: Vendi Abandoned Plugin Check
 Description: Provides information about abandoned plugins
-Version: 5.0.2
+Version: 5.0.3
 Requires at least: 6.3
 Requires PHP: 7.4
 License: GPL v2 or later
 Author: Vendi Advertising (Chris Haas)
+Text Domain: vendi-abandoned-plugin-check
 */
 
 class Vendi_Plugin_Health_Check
@@ -201,6 +203,19 @@ class Vendi_Plugin_Health_Check
         return $randomString;
     }
 
+    private function get_message(int $days): string
+    {
+        return sprintf(
+            \_n(
+                "This plugin's last update was %s day ago.",
+                "This plugin's last update was %s days ago.",
+                $days,
+                'vendi-abandoned-plugin-check',
+            ),
+            \number_format_i18n($days),
+        );
+    }
+
     /**
      * @throws Exception
      * @noinspection PhpUndefinedFunctionInspection
@@ -226,36 +241,80 @@ class Vendi_Plugin_Health_Check
                 //Generate a random unique ID for this plugin
                 $id = 'ab_' . $this->generate_random_string();
 
+                $message = $this->get_message($diff_in_days);
+
                 //Output warning text
-                $text = sprintf('<strong id="%1$s" style="color: #f00; display: block; background-color: #fff; padding: 3px; border: 1px solid #f00; text-align: left;">This plugin has not been updated by the author in %2$d days!</strong>', $id, $diff_in_days);
+                $text = sprintf('<div id="%1$s"></div>', $id);
+
+                $message = json_encode($message, JSON_UNESCAPED_UNICODE);
+                $id      = json_encode($id, JSON_UNESCAPED_UNICODE);
 
                 //Also output some JS that hopefully can find the parent "card" and style that as well
                 $js = <<<EOT
                     <script>
-                        //Grab our random unique ID
-                        let n = document.getElementById('$id');
                     
-                        //Make sure we have something and loop through each parent
-                        while( n && n.parentNode )
-                        {
-                            //If the parent has the class or tag, that we're looking for
-                            if(
-                                ( n.parentNode.className && n.parentNode.className.indexOf( 'plugin-card' ) >= 0 )  //WP 4.0 and greater
-                                ||
-                                ( n.parentNode.nodeName && n.parentNode.nodeName.toUpperCase() === 'TR' )           //WP 3.9 and less
-                              )
-                            {
-                                //Make it stand out
-                                n.parentNode.style.backgroundColor = '#f99';
-                                n.parentNode.style.borderColor = '#f00';
+                    /*global window */
+                    (function (w) {
                     
-                                //We found it, done.
-                                break;
-                            }
+                            'use strict'; //Force strict mode
                     
-                            //We didn't find anything, walk up one more parent
-                            n = n.parentNode;
+                            const
+                                document = w.document,
+                                message = '' + $message,
+                                id = '' + $id,
+                    
+                                load = () => {
+                                    //Grab our random unique ID
+                                    let n = document.getElementById($id);
+                    
+                                    //Make sure we have something and loop through each parent
+                                    while( n && n.parentNode ) {
+                                        //If the parent has the class or tag, that we're looking for
+                                        if( n.parentNode.className && n.parentNode.classList.contains( 'plugin-card' ) ) {
+                                            const topCard = n.parentNode.querySelector('.plugin-card-top');
+                                            // debugger;
+                                            if(topCard){
+                            
+                                                const newDiv = document.createElement('div');
+                                                newDiv.classList.add('plugin-dependenciess','error', 'notice', 'inline', 'notice-error', 'notice-alt');
+                                                newDiv.style.margin = "auto 20px 20px";
+                                                const newP = document.createElement('p');
+                                                newP.classList.add('plugin-dependencies-explainer-text');
+                                                const newStrong = document.createElement('strong');
+                                                newStrong.append(message);
+                                                newP.append(newStrong);
+                                                newDiv.append(newP);
+                                                topCard.after(newDiv);
+                                            } else {
+                                                //Make it stand out
+                                                n.parentNode.style.backgroundColor = '#f99';
+                                                n.parentNode.style.borderColor = '#f00';                        
+                                            }
+                                            
+                                            //We found it, done.
+                                            break;
+                                        }
+                    
+                                        //We didn't find anything, walk up one more parent
+                                        n = n.parentNode;
+                                    }
+                                },
+                    
+                                init = () => {
+                                    if (['complete', 'interactive'].includes(document.readyState)) {
+                                        //If the DOM is already set then invoke our load function
+                                        load();
+                                    } else {
+                                        //Otherwise, wait for the ready event
+                                        document.addEventListener('DOMContentLoaded', load);
+                                    }
+                                }
+                            ;
+                    
+                            //Kick everything off
+                            init();
                         }
+                    )(window);
                     </script>
                     EOT;
                 //Combine the text and JS
@@ -360,11 +419,13 @@ class Vendi_Plugin_Health_Check
             //Customizable number of days for tolerance
             $tolerance_in_days = apply_filters('vendi_plugin_health_check_tolerance_in_days', 365);
 
+            $message = $this->get_message($diff_in_days);
+
             //If we're outside the window for tolerance show a message
             if ($diff_in_days > $tolerance_in_days) {
-                $plugin_meta[] = sprintf('<strong style="color: #f00;">This plugin has not been updated by the author in %1$d days!</strong>', $diff_in_days);
+                $plugin_meta[] = '<strong style="color: #f00;">' . esc_html($message) . '</strong>';
             } else {
-                $plugin_meta[] = sprintf('<span style="color: #090;">This plugin was last updated by the author in %1$d days ago.</span>', $diff_in_days);
+                $plugin_meta[] = '<strong style="color: #090;">' . esc_html($message) . '</strong>';
             }
         }
 
@@ -416,7 +477,7 @@ class Vendi_Plugin_Health_Check
             $body = $this->try_get_response_body($v);
 
             //We couldn't get any information, skip this plugin
-            if (!$body) {
+            if ( ! $body) {
                 continue;
             }
 
