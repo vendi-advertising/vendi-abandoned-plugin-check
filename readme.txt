@@ -1,7 +1,7 @@
 === Vendi Abandoned Plugin Check ===
 Contributors: chrisvendiadvertisingcom
 Tags: admin, abandoned
-Stable tag: 5.0.1
+Stable tag: 5.0.2
 Requires at least: 6.3
 Tested up to: 6.7
 Requires PHP: 7.4
@@ -50,6 +50,9 @@ Depending on how many plugins you have installed it might take a couple of minut
 2. Example showing old plugins when searching.
 
 == Changelog ==
+
+= 5.0.2 =
+* Version bump to align Readme and PHP
 
 = 5.0.1 =
 * Syncing authentication between SVN with GH
