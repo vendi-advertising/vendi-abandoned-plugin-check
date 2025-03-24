@@ -3,7 +3,7 @@
 /*
 Plugin Name: Vendi Abandoned Plugin Check
 Description: Provides information about abandoned plugins
-Version: 5.0.0
+Version: 5.0.2
 Requires at least: 6.3
 Requires PHP: 7.4
 License: GPL v2 or later
