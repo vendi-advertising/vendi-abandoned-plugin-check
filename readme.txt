@@ -51,6 +51,9 @@ Depending on how many plugins you have installed it might take a couple of minut
 
 == Changelog ==
 
+= 5.0.4 =
+* WP 6.9 tested
+
 = 5.0.3 =
 * Unified plugin age message, enabled translations
 * Cleanup display of error when installing
