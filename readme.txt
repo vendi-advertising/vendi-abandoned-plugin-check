@@ -1,7 +1,7 @@
 === Vendi Abandoned Plugin Check ===
 Contributors: chrisvendiadvertisingcom
 Tags: admin, abandoned
-Stable tag: 5.0.3
+Stable tag: 5.0.4
 Requires at least: 6.3
 Tested up to: 6.9
 Requires PHP: 7.4
