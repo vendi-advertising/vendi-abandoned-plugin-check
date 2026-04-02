@@ -3,7 +3,7 @@ Contributors: chrisvendiadvertisingcom
 Tags: admin, abandoned
 Stable tag: 5.0.3
 Requires at least: 6.3
-Tested up to: 6.7
+Tested up to: 6.9
 Requires PHP: 7.4
 License: GPLv2 or later
 
